@@ -1,5 +1,5 @@
 // ignore_for_file: prefer_const_constructors, library_private_types_in_public_api
-
+import 'transfer_operation_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:line_icons/line_icons.dart';
@@ -38,7 +38,7 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 8),
           child: GNav(
-            rippleColor: Color(0xFF151538), // Change ripple color to #151538
+            rippleColor: Color(0xFF151538),
             hoverColor: Color(0xFF151538),
             gap: 8,
             activeColor: Colors.black,
@@ -59,14 +59,22 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
                 ),
               ),
               GButton(
-                icon: LineIcons.heart,
-                text: 'Likes',
+                icon: LineIcons.arrowCircleRight,
+                text: 'Transfer',
                 textStyle: GoogleFonts.sora(
                   textStyle: TextStyle(
                     color: Colors.black,
                     fontSize: 16,
                   ),
                 ),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => TransferOperationScreen(),
+                    ),
+                  );
+                },
               ),
               GButton(
                 icon: LineIcons.search,
