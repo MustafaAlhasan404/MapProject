@@ -1,4 +1,4 @@
-# Fix Debugging because expiry date and name dont give error if wrong
+# when invalid transition show error instead of terminal
 
 
-# make it so when invalid an error msg is shown
+# button to show all transactions made
