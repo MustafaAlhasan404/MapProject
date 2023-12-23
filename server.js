@@ -200,6 +200,61 @@ app.post('/login', async (req, res) => {
     }
 });
 
+app.post('/transferMoney', async (req, res) => {
+    try {
+        const { senderUsername, recipientCardNumber, amount } = req.body;
+
+        // Verify that the sender user exists
+        const senderUser = await User.findOne({ username: senderUsername });
+        if (!senderUser) {
+            console.log('Sender user not found');
+            return res.status(404).json({ error: 'Sender user not found' });
+        }
+
+        // Verify that the recipient user exists
+        const recipientUser = await User.findOne({ creditCardNumber: recipientCardNumber });
+        if (!recipientUser) {
+            console.log('Recipient user not found');
+            return res.status(404).json({ error: 'Recipient user not found' });
+        }
+
+        // Check if the provided credit card number matches the recipient's credit card number
+        if (recipientUser.creditCardNumber !== recipientCardNumber) {
+            console.log('Invalid credit card number for the recipient');
+            return res.status(400).json({ error: 'Invalid credit card number for the recipient' });
+        }
+
+        // Convert the transfer amount to a number
+        const transferAmount = parseFloat(amount);
+
+        // Check if the amount is a valid number
+        if (isNaN(transferAmount) || transferAmount <= 0) {
+            console.log('Invalid transfer amount');
+            return res.status(400).json({ error: 'Invalid transfer amount' });
+        }
+
+        // Check if the sender has enough balance for the transfer
+        if (senderUser.balance < transferAmount) {
+            console.log('Insufficient balance for the transfer');
+            return res.status(400).json({ error: 'Insufficient balance for the transfer' });
+        }
+
+        // Update sender's balance
+        senderUser.balance -= transferAmount;
+        await senderUser.save();
+
+        // Update recipient's balance
+        recipientUser.balance += transferAmount;
+        await recipientUser.save();
+
+        console.log('Money transfer successful');
+        res.status(200).json({ message: 'Money transfer successful' });
+    } catch (error) {
+        console.error('Error during money transfer:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
 // Start the server
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
