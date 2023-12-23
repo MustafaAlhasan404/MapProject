@@ -19,12 +19,6 @@ class _TransferOperationScreenState extends State<TransferOperationScreen> {
   // Controller for the recipient credit card number input
   final recipientCardNumberController = TextEditingController();
 
-  // Controller for the expiry date input
-  final expiryDateController = TextEditingController();
-
-  // Controller for the name of the cardholder input
-  final cardHolderNameController = TextEditingController();
-
   // Controller for the amount to be transferred input
   final amountController = TextEditingController();
 
@@ -95,7 +89,7 @@ class _TransferOperationScreenState extends State<TransferOperationScreen> {
             width: MediaQuery.of(context).size.width *
                 0.8, // Set the width of the dialog content
             height: MediaQuery.of(context).size.height *
-                0.6, // Set the height of the dialog content
+                0.4, // Set the height of the dialog content
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -103,30 +97,6 @@ class _TransferOperationScreenState extends State<TransferOperationScreen> {
                   controller: recipientCardNumberController,
                   decoration: InputDecoration(
                     labelText: 'Recipient Credit Card Number',
-                    labelStyle: TextStyle(
-                      fontFamily: 'Google-Sora', // Font style
-                      fontWeight:
-                          FontWeight.bold, // Make the font a little bolder
-                      color: Color(0xFF8D86C9), // Text color
-                    ),
-                  ),
-                ),
-                TextFormField(
-                  controller: expiryDateController,
-                  decoration: InputDecoration(
-                    labelText: 'Expiry Date',
-                    labelStyle: TextStyle(
-                      fontFamily: 'Google-Sora', // Font style
-                      fontWeight:
-                          FontWeight.bold, // Make the font a little bolder
-                      color: Color(0xFF8D86C9), // Text color
-                    ),
-                  ),
-                ),
-                TextFormField(
-                  controller: cardHolderNameController,
-                  decoration: InputDecoration(
-                    labelText: 'Name of Card Holder',
                     labelStyle: TextStyle(
                       fontFamily: 'Google-Sora', // Font style
                       fontWeight:
