@@ -1,9 +1,8 @@
 // ignore_for_file: prefer_const_constructors, library_private_types_in_public_api
 import 'transfer_operation_screen.dart';
+import 'stocks.dart'; // Import your StockScreen
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
-import 'package:line_icons/line_icons.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class CustomBottomNavBar extends StatefulWidget {
   final int selectedIndex;
@@ -49,23 +48,19 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
             color: Colors.black,
             tabs: [
               GButton(
-                icon: LineIcons.home,
+                icon: Icons.home,
                 text: 'Home',
-                textStyle: GoogleFonts.sora(
-                  textStyle: TextStyle(
-                    color: Colors.black,
-                    fontSize: 16,
-                  ),
+                textStyle: TextStyle(
+                  color: Colors.black,
+                  fontSize: 16,
                 ),
               ),
               GButton(
-                icon: LineIcons.arrowCircleRight,
+                icon: Icons.arrow_circle_right,
                 text: 'Transfer',
-                textStyle: GoogleFonts.sora(
-                  textStyle: TextStyle(
-                    color: Colors.black,
-                    fontSize: 16,
-                  ),
+                textStyle: TextStyle(
+                  color: Colors.black,
+                  fontSize: 16,
                 ),
                 onPressed: () {
                   Navigator.push(
@@ -77,23 +72,27 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
                 },
               ),
               GButton(
-                icon: LineIcons.search,
-                text: 'Search',
-                textStyle: GoogleFonts.sora(
-                  textStyle: TextStyle(
-                    color: Colors.black,
-                    fontSize: 16,
-                  ),
+                icon: Icons.show_chart,
+                text: 'Stocks',
+                textStyle: TextStyle(
+                  color: Colors.black,
+                  fontSize: 16,
                 ),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => StockScreen(),
+                    ),
+                  );
+                },
               ),
               GButton(
-                icon: LineIcons.user,
+                icon: Icons.person,
                 text: 'Profile',
-                textStyle: GoogleFonts.sora(
-                  textStyle: TextStyle(
-                    color: Colors.black,
-                    fontSize: 16,
-                  ),
+                textStyle: TextStyle(
+                  color: Colors.black,
+                  fontSize: 16,
                 ),
               ),
             ],
