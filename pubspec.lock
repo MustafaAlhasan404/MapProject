@@ -97,14 +97,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.2"
-  dio:
-    dependency: transitive
-    description:
-      name: dio
-      sha256: "797e1e341c3dd2f69f2dad42564a6feff3bfb87187d05abb93b9609e6f1645c3"
-      url: "https://pub.dev"
-    source: hosted
-    version: "5.4.0"
   fake_async:
     dependency: transitive
     description:
@@ -192,14 +184,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.0.2"
-  idb_shim:
-    dependency: transitive
-    description:
-      name: idb_shim
-      sha256: cf1b3870ad63a6f5393edb351a9c9364e739731f2176c27f44d9645327c2cdd5
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.3.2"
   js:
     dependency: transitive
     description:
@@ -284,10 +268,10 @@ packages:
     dependency: transitive
     description:
       name: path_provider_android
-      sha256: e595b98692943b4881b219f0a9e3945118d3c16bd7e2813f98ec6e532d905f72
+      sha256: "477184d672607c0a3bf68fbbf601805f92ef79c82b64b4d6eb318cbca4c48668"
       url: "https://pub.dev"
     source: hosted
-    version: "2.2.1"
+    version: "2.2.2"
   path_provider_foundation:
     dependency: transitive
     description:
@@ -352,22 +336,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.7.3"
-  sembast:
-    dependency: transitive
-    description:
-      name: sembast
-      sha256: "85ff944434f7b566fdc388be4f85b23e954736b7d6e51f965f4f419d966c15b1"
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.5.0+1"
-  sembast_web:
-    dependency: transitive
-    description:
-      name: sembast_web
-      sha256: "1ba0402b9491b76312358ec3cb3a33b9fc22eb673d4f9a3e99b2425135add72c"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.2.0"
   shared_preferences:
     dependency: "direct main"
     description:
@@ -445,14 +413,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.11.1"
-  stock_market_data:
-    dependency: "direct main"
-    description:
-      name: stock_market_data
-      sha256: "9ec43d8a4997101cd487bc9aaf76de24122bb1ed034ee3c086692609b15116fd"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.1.2"
   stream_channel:
     dependency: transitive
     description:
@@ -469,14 +429,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.2.0"
-  synchronized:
-    dependency: transitive
-    description:
-      name: synchronized
-      sha256: "539ef412b170d65ecdafd780f924e5be3f60032a1128df156adad6c5b373d558"
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.1.0+1"
   term_glyph:
     dependency: transitive
     description:
@@ -533,14 +485,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.3"
-  yahoo_finance_data_reader:
-    dependency: transitive
-    description:
-      name: yahoo_finance_data_reader
-      sha256: eba0d5678da7732ed179e932099ecf29a8cb4549beb91d0ad051337592b7f59a
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.8"
 sdks:
   dart: ">=3.2.0 <4.0.0"
   flutter: ">=3.16.0"
