@@ -23,32 +23,34 @@ userSchema.pre("save", function (next) {
 		currentDate.getDate()
 	);
 	this.expiryDate = expiryDate;
-
-	// Generate a unique 16-digit credit card number
-	const generatedCreditCardNumber = generateUniqueCreditCardNumber();
-	this.creditCardNumber = generatedCreditCardNumber;
+	console.log("Generated Expiry date", expiryDate);
 
 	// Generate a 3-digit CVV
 	const generatedCVV = generateCVV();
 	this.cvv = generatedCVV;
+	console.log("Generated CVV", this.cvv);
+
+	// Generate a unique 16-digit credit card number
+	const generatedCreditCardNumber = generateUniqueCreditCardNumber();
+	this.creditCardNumber = generatedCreditCardNumber;
+	console.log("Generated Card Number", this.creditCardNumber);
 
 	next();
 });
 
 function generateUniqueCreditCardNumber() {
 	let creditCardNumber = "";
-	while (true) {
-		creditCardNumber = "4"; // VISA card starts with '4'
-		for (let i = 0; i < 15; i++) {
-			creditCardNumber += Math.floor(Math.random() * 10).toString();
-		}
-
-		// Check if the generated credit card number is unique
-		const existingUser = User.findOne({ creditCardNumber });
-		if (!existingUser) {
-			break;
-		}
+	creditCardNumber = "4"; // VISA card starts with '4'
+	for (let i = 0; i < 15; i++) {
+		creditCardNumber += Math.floor(Math.random() * 10).toString();
 	}
+
+	// // Check if the generated credit card number is unique
+	// const existingUser = User.findOne({ creditCardNumber });
+	// if (!existingUser) {
+	// 	break;
+	// }
+
 	return creditCardNumber;
 }
 

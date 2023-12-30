@@ -22,22 +22,20 @@ mongoose.connect(
 	}
 );
 
-// Endpoint for handling user signup
+// Signup endpoint
 app.post("/signup", async (req, res) => {
-	const { firstName, lastName, address, birthday, username, password } =
-		req.body;
-
 	try {
-		console.log("Received signup request:", { username, password });
+		const { firstName, lastName, address, birthday, username, password } =
+			req.body;
 
-		// Check if the username already exists in the database
+		// Check if the username already exists
 		const existingUser = await User.findOne({ username });
 		if (existingUser) {
-			console.log("Username already exists");
-			return res.status(400).json({ error: "Username already exists" });
+			return res.status(409).json({ message: "Username already exists" });
 		}
 
-		const newUser = new User({
+		// Create a new user instance
+		const user = new User({
 			firstName,
 			lastName,
 			address,
@@ -46,18 +44,20 @@ app.post("/signup", async (req, res) => {
 			password,
 		});
 
-		await newUser.save();
+		// Save the user to the database
+		await user.save();
 
-		console.log("Signup successful");
-		res.status(200).json({
-			message: "Signup successful",
-			...newUser,
-		});
+		res.status(201).json({ message: "User created successfully" });
 	} catch (error) {
-		console.error("Error:", error);
-		res.status(500).json({ error: "Internal Server Error" });
+		console.error(error);
+		res.status(500).json({ message: "Internal server error" });
 	}
 });
+
+// app.get("/allUsers", async (req, res) => {
+// 	const users = await User.find({});
+// 	res.send(users);
+// });
 
 // Endpoint for getting user balance
 app.get("/getUserBalance/:username", async (req, res) => {
