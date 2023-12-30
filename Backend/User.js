@@ -15,6 +15,10 @@ const userSchema = new mongoose.Schema({
 
 // Middleware to generate Card Number, CVV, and expiry date
 userSchema.pre("save", function (next) {
+	if (!this.isNew) {
+		return next();
+	}
+
 	// Generate expiry date a year from now
 	const currentDate = new Date();
 	const expiryDate = new Date(

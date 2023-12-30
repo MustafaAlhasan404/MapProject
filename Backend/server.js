@@ -54,32 +54,59 @@ app.post("/signup", async (req, res) => {
 	}
 });
 
-// app.get("/allUsers", async (req, res) => {
-// 	const users = await User.find({});
-// 	res.send(users);
-// });
-
-// Endpoint for getting user balance
-app.get("/getUserBalance/:username", async (req, res) => {
-	const username = req.params.username;
+app.post("/login", async (req, res) => {
+	const { username, password } = req.body;
 
 	try {
-		const user = await User.findOne({ username });
+		console.log("Received login request:", { username, password });
 
-		if (!user) {
-			return res.status(404).json({ error: "User not found" });
+		const existingUser = await User.findOne({ username });
+		if (!existingUser) {
+			console.log("Username not found");
+			return res.status(400).json({ error: "Username not found" });
 		}
 
-		const userBalance = {
-			balance: user.balance,
-		};
+		if (password !== existingUser.password) {
+			console.log("Incorrect password");
+			return res.status(401).json({ error: "Incorrect password" });
+		}
 
-		res.status(200).json(userBalance);
+		console.log("Login successful");
+		res.status(200).json({ message: "Login successful" });
 	} catch (error) {
 		console.error("Error:", error);
 		res.status(500).json({ error: "Internal Server Error" });
 	}
 });
+
+app.get("/users", async (req, res) => {
+	const users = await User.find({});
+	res.send(users);
+});
+
+// ------------ DANGER ZONE ------------------------
+app.delete("/users", async (req, res) => {
+	try {
+		await User.deleteMany({});
+		res.send("All users have been deleted.");
+	} catch (error) {
+		res.status(500).send(error.message);
+	}
+});
+app.delete("/transactions", async (req, res) => {
+	try {
+		await Transaction.deleteMany();
+		Transaction.collection.dropIndexes(function (err, results) {});
+
+		return res
+			.status(200)
+			.json({ message: "All transactions deleted successfully" });
+	} catch (error) {
+		console.error(error);
+		return res.status(500).json({ error: "Internal server error" });
+	}
+});
+// ------------ DANGER ZONE ------------------------
 
 app.get("/users/:username", async (req, res) => {
 	const { username } = req.params;
@@ -95,6 +122,22 @@ app.get("/users/:username", async (req, res) => {
 	}
 });
 
+// Endpoint for getting user balance
+app.get("/getUserBalance/:username", async (req, res) => {
+	const username = req.params.username;
+
+	try {
+		const user = await User.findOne({ username });
+
+		if (!user) return res.status(404).json({ error: "User not found" });
+
+		res.status(200).json({ balance: user.balance });
+	} catch (error) {
+		console.error("Error:", error);
+		res.status(500).json({ error: "Internal Server Error" });
+	}
+});
+
 // Endpoint for getting credit card information
 app.get("/getCreditCardInfo/:username", async (req, res) => {
 	const username = req.params.username;
@@ -106,11 +149,30 @@ app.get("/getCreditCardInfo/:username", async (req, res) => {
 			return res.status(404).json({ error: "User not found" });
 		}
 
+		let formattedCardNumber = "";
+		for (let i = 0; i < user.creditCardNumber.length; i++) {
+			if (i > 0 && i % 4 === 0) {
+				formattedCardNumber += " ";
+			}
+			formattedCardNumber += user.creditCardNumber[i];
+		}
+
+		yearStr = user.expiryDate.getFullYear().toString();
+		const formattedExpiry =
+			user.expiryDate.getMonth() +
+			"/" +
+			yearStr.charAt(2) +
+			yearStr.charAt(3);
+
+		const formattedName = user.firstName + " " + user.lastName;
+
 		// Extract and send credit card information in the response
 		const creditCardInfo = {
-			cardNumber: user.creditCardNumber,
 			cvv: user.cvv,
-			expiryDate: user.expiryDate,
+			expiryDate: formattedExpiry,
+			name: formattedName,
+			cardNumber: formattedCardNumber,
+			balance: user.balance,
 		};
 
 		res.status(200).json(creditCardInfo);
@@ -120,99 +182,107 @@ app.get("/getCreditCardInfo/:username", async (req, res) => {
 	}
 });
 
-// Endpoint for handling user login
-app.post("/login", async (req, res) => {
-	// Extract username and password from the request body
-	const { username, password } = req.body;
-
+app.post("/transfer", async (req, res) => {
 	try {
-		console.log("Received login request:", { username, password });
+		const { senderUsername, receiverUsername, amount } = req.body;
 
-		// Check if the username exists in the database
-		const existingUser = await User.findOne({ username });
-		if (!existingUser) {
-			console.log("Username not found");
-			return res.status(400).json({ error: "Username not found" });
+		// Find sender and receiver users
+		const sender = await User.findOne({ username: senderUsername });
+		const receiver = await User.findOne({ username: receiverUsername });
+
+		// Check if sender and receiver exist
+		if (!sender || !receiver) {
+			return res.status(404).json({ error: "User not found" });
 		}
 
-		// Check if the password is correct
-		if (password !== existingUser.password) {
-			console.log("Incorrect password");
-			return res.status(401).json({ error: "Incorrect password" });
-		}
-
-		// Login successful
-		console.log("Login successful");
-
-		// Additional tasks can be performed here, such as creating a session or generating a token
-
-		// Respond with success
-		res.status(200).json({ message: "Login successful" });
-	} catch (error) {
-		// Handle database or server errors
-		console.error("Error:", error);
-		res.status(500).json({ error: "Internal Server Error" });
-	}
-});
-
-app.post("/transferMoney", async (req, res) => {
-	try {
-		const { senderUsername, recipientCardNumber, amount } = req.body;
-
-		// Verify that the sender user exists
-		const senderUser = await User.findOne({ username: senderUsername });
-		if (!senderUser) {
-			console.log("Sender user not found");
-			return res.status(404).json({ error: "Sender user not found" });
-		}
-
-		// Verify that the recipient user exists
-		const recipientUser = await User.findOne({
-			creditCardNumber: recipientCardNumber,
-		});
-		if (!recipientUser) {
-			console.log("Recipient user not found");
-			return res.status(404).json({ error: "Recipient user not found" });
-		}
-
-		// Check if the provided credit card number matches the recipient's credit card number
-		if (recipientUser.creditCardNumber !== recipientCardNumber) {
-			console.log("Invalid credit card number for the recipient");
-			return res.status(400).json({
-				error: "Invalid credit card number for the recipient",
-			});
-		}
-
-		// Convert the transfer amount to a number
-		const transferAmount = parseFloat(amount);
-
-		// Check if the amount is a valid number
-		if (isNaN(transferAmount) || transferAmount <= 0) {
-			console.log("Invalid transfer amount");
-			return res.status(400).json({ error: "Invalid transfer amount" });
-		}
-
-		// Check if the sender has enough balance for the transfer
-		if (senderUser.balance < transferAmount) {
-			console.log("Insufficient balance for the transfer");
-			return res
-				.status(400)
-				.json({ error: "Insufficient balance for the transfer" });
+		// Check if sender has enough balance
+		if (sender.balance < amount) {
+			return res.status(400).json({ error: "Insufficient balance" });
 		}
 
 		// Update sender's balance
-		senderUser.balance -= transferAmount;
-		await senderUser.save();
+		sender.balance -= amount;
+		await sender.save();
 
-		// Update recipient's balance
-		recipientUser.balance += transferAmount;
-		await recipientUser.save();
+		// Update receiver's balance
+		receiver.balance += amount;
+		await receiver.save();
 
-		console.log("Money transfer successful");
-		res.status(200).json({ message: "Money transfer successful" });
+		// Create a new transaction
+		const transaction = new Transaction({
+			senderUsername: sender.username,
+			senderName: `${sender.firstName} ${sender.lastName}`,
+			senderCardNumber: sender.creditCardNumber,
+			receiverUsername: receiver.username,
+			receiverName: `${receiver.firstName} ${receiver.lastName}`,
+			receiverCardNumber: receiver.creditCardNumber,
+			amount,
+		});
+		await transaction.save();
+
+		return res
+			.status(200)
+			.json({ message: "Money transferred successfully" });
 	} catch (error) {
-		console.error("Error during money transfer:", error);
-		res.status(500).json({ error: "Internal Server Error" });
+		console.error(error);
+		return res.status(500).json({ error: "Internal server error" });
+	}
+});
+
+app.get("/transactions", async (req, res) => {
+	try {
+		const transactions = await Transaction.find();
+		return res.status(200).json(transactions);
+	} catch (error) {
+		console.error(error);
+		return res.status(500).json({ error: "Internal server error" });
+	}
+});
+
+app.get("/transactions/:username", async (req, res) => {
+	try {
+		const username = req.params.username;
+
+		const user = await User.findOne({ username });
+
+		if (!user) {
+			return res.status(404).json({ error: "User not found" });
+		}
+
+		// Find all transactions where the sender or receiver username matches
+		const transactions = await Transaction.find({
+			$or: [{ senderUsername: username }, { receiverUsername: username }],
+		});
+
+		res.json(transactions);
+	} catch (err) {
+		res.status(500).json({
+			error: "An error occurred while retrieving transactions",
+		});
+	}
+});
+
+app.get("/transactions/latest/:username", async (req, res) => {
+	try {
+		const username = req.params.username;
+
+		const user = await User.findOne({ username });
+
+		if (!user) {
+			return res.status(404).json({ error: "User not found" });
+		}
+
+		const transactions = await Transaction.find({
+			$or: [{ senderUsername: username }, { receiverUsername: username }],
+		})
+			.sort({ date: -1 })
+			.limit(5);
+
+		res.json(transactions);
+	} catch (err) {
+		res.status(500).json({
+			error: "An error occurred while retrieving transactions",
+		});
 	}
 });
 
