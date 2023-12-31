@@ -4,8 +4,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
-// Import your LoginPage class
-import 'login.dart'; // Update with the correct path
+import 'login.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({Key? key}) : super(key: key);
@@ -15,11 +14,13 @@ class SignupPage extends StatefulWidget {
 }
 
 class _SignupPageState extends State<SignupPage> {
-  // Controllers for handling text input
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _firstNameController = TextEditingController();
+  final TextEditingController _lastNameController = TextEditingController();
+  final TextEditingController _addressController = TextEditingController();
+  final TextEditingController _birthdayController = TextEditingController();
 
-  // State variables
   bool _obscurePassword = true;
   bool _agreeToTerms = false;
 
@@ -39,6 +40,14 @@ class _SignupPageState extends State<SignupPage> {
                 const SizedBox(height: 24),
                 _buildInputField('Username', _usernameController),
                 const SizedBox(height: 24),
+                _buildInputField('First Name', _firstNameController),
+                const SizedBox(height: 24),
+                _buildInputField('Last Name', _lastNameController),
+                const SizedBox(height: 24),
+                _buildInputField('Address', _addressController),
+                const SizedBox(height: 24),
+                _buildInputField('Birthday', _birthdayController),
+                const SizedBox(height: 24),
                 _buildPasswordInput(),
                 const SizedBox(height: 24),
                 _buildCheckboxText('I agree to the Terms of Service'),
@@ -54,8 +63,6 @@ class _SignupPageState extends State<SignupPage> {
       ),
     );
   }
-
-  // Widgets for UI components
 
   Widget _buildHeaderText(String text) {
     return Text(
@@ -152,7 +159,7 @@ class _SignupPageState extends State<SignupPage> {
       width: double.infinity,
       child: TextButton(
         onPressed: () {
-          Navigator.pop(context); // Navigate back to the login page
+          Navigator.pop(context);
         },
         child: RichText(
           text: TextSpan(
@@ -168,7 +175,7 @@ class _SignupPageState extends State<SignupPage> {
                 text: 'Log in',
                 style: GoogleFonts.sora(
                   textStyle: TextStyle(
-                    color: Color(0xFF8D86C9), // Color for "Log in"
+                    color: Color(0xFF8D86C9),
                     fontSize: 16,
                   ),
                 ),
@@ -203,8 +210,6 @@ class _SignupPageState extends State<SignupPage> {
       },
     );
   }
-
-  // Styles and text configurations
 
   TextStyle _inputTextStyle() {
     return GoogleFonts.sora(
@@ -270,21 +275,27 @@ class _SignupPageState extends State<SignupPage> {
     );
   }
 
-  // Function to handle signup logic
-
   void _performSignup() async {
     final String username = _usernameController.text;
     final String password = _passwordController.text;
+    final String firstName = _firstNameController.text;
+    final String lastName = _lastNameController.text;
+    final String address = _addressController.text;
+    final String birthday = _birthdayController.text;
 
-    // Check if username or password is empty
-    if (username.isEmpty || password.isEmpty) {
-      print('Username or password is empty');
+    if (username.isEmpty ||
+        password.isEmpty ||
+        firstName.isEmpty ||
+        lastName.isEmpty ||
+        address.isEmpty ||
+        birthday.isEmpty) {
+      print('All fields are required');
+      _showErrorMessage(
+          'All fields are required. Please fill in all the fields.');
       return;
     }
 
-    // Replace 'http://your-server-url:3000/signup' with the actual URL of your Node.js server
-    final String serverUrl =
-        'http://10.0.2.2:3000/signup'; // Update with your server URL
+    final String serverUrl = 'http://10.0.2.2:3000/signup';
 
     try {
       final response = await http.post(
@@ -293,15 +304,16 @@ class _SignupPageState extends State<SignupPage> {
         body: jsonEncode({
           'username': username,
           'password': password,
+          'firstName': firstName,
+          'lastName': lastName,
+          'address': address,
+          'birthday': birthday,
         }),
       );
 
-      print('Server Response Code: ${response.statusCode}');
-      print('Server Response Body: ${response.body}');
-
-      if (response.statusCode == 200) {
+      if (response.statusCode == 201) {
         // Signup successful
-        // Navigate to the login page
+        // Navigate to the home screen
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -309,26 +321,20 @@ class _SignupPageState extends State<SignupPage> {
                   LoginPage()), // Replace with your actual login page class
         );
       } else if (response.statusCode == 400) {
-        // Signup failed due to existing username
-        // Display an error message to the user
         print('Signup failed: Username already exists');
         _showErrorMessage(
             'Username already exists. Please enter another username.');
       } else {
-        // Signup failed for other reasons
-        // Display a generic error message
         print('Signup failed');
         _showErrorMessage('Signup failed. Please try again later.');
       }
     } catch (error) {
-      // Handle network or server errors
       print('Error: $error');
       _showErrorMessage(
           'An error occurred. Please check your network connection and try again.');
     }
   }
 
-  // Function to show an error message
   void _showErrorMessage(String message) {
     showDialog(
       context: context,
@@ -351,7 +357,6 @@ class _SignupPageState extends State<SignupPage> {
     );
   }
 
-  // Function to show an alert for accepting terms
   void _showTermsAlert(BuildContext context) {
     showDialog(
       context: context,
