@@ -1,4 +1,4 @@
-// ignore_for_file: use_build_context_synchronously, prefer_const_declarations, avoid_print, sort_child_properties_last, prefer_const_constructors, depend_on_referenced_packages, library_private_types_in_public_api
+// ignore_for_file: use_build_context_synchronously, prefer_const_declarations, avoid_print, sort_child_properties_last, prefer_const_constructors, depend_on_referenced_packages, library_private_types_in_public_api, use_super_parameters
 
 import 'dart:convert';
 import 'package:flutter/material.dart';
@@ -24,40 +24,78 @@ class _SignupPageState extends State<SignupPage> {
   bool _obscurePassword = true;
   bool _agreeToTerms = false;
 
+  DateTime _selectedDate = DateTime.now();
+
+  Future<void> _selectDate(BuildContext context) async {
+    DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate,
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
+    );
+
+    if (picked != null && picked != _selectedDate) {
+      setState(() {
+        _selectedDate = picked;
+        _birthdayController.text = "${picked.toLocal()}".split(' ')[0];
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF171738),
       body: Center(
         child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(32),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 60),
-                _buildHeaderText('Sign Up'),
-                const SizedBox(height: 24),
-                _buildInputField('Username', _usernameController),
-                const SizedBox(height: 24),
-                _buildInputField('First Name', _firstNameController),
-                const SizedBox(height: 24),
-                _buildInputField('Last Name', _lastNameController),
-                const SizedBox(height: 24),
-                _buildInputField('Address', _addressController),
-                const SizedBox(height: 24),
-                _buildInputField('Birthday', _birthdayController),
-                const SizedBox(height: 24),
-                _buildPasswordInput(),
-                const SizedBox(height: 24),
-                _buildCheckboxText('I agree to the Terms of Service'),
-                const SizedBox(height: 8),
-                const SizedBox(height: 24),
-                _buildSignupButton(context),
-                const SizedBox(height: 24),
-                _buildLoginButton(context),
-              ],
-            ),
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 60),
+              _buildHeaderText('Sign Up'),
+              const SizedBox(height: 24),
+              // First Row
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildInputField('First Name', _firstNameController),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: _buildInputField('Last Name', _lastNameController),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
+              // Second Row
+              _buildDateField(),
+              const SizedBox(height: 24),
+              // Third Row
+              _buildInputField('Address', _addressController),
+              const SizedBox(height: 24),
+              // Fourth Row
+              _buildInputField('Username', _usernameController),
+              const SizedBox(height: 24),
+              // Fifth Row
+              _buildPasswordInput(),
+              const SizedBox(height: 24),
+              // Sixth Row
+              _buildCheckboxText('I agree to the Terms of Service'),
+              const SizedBox(height: 8),
+              const SizedBox(height: 24),
+              // Seventh Row (Signup Button)
+              Align(
+                alignment: Alignment.center,
+                child: _buildSignupButton(context),
+              ),
+              const SizedBox(height: 24),
+              // Eighth Row (Already have an account? Login in)
+              Align(
+                alignment: Alignment.center,
+                child: _buildLoginButton(context),
+              ),
+            ],
           ),
         ),
       ),
@@ -83,6 +121,24 @@ class _SignupPageState extends State<SignupPage> {
         controller: controller,
         style: _inputTextStyle(),
         decoration: _inputDecoration(label, backgroundColor: Color(0xFFF7ECE1)),
+      ),
+    );
+  }
+
+  Widget _buildDateField() {
+    return Center(
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(10.0),
+        child: GestureDetector(
+          onTap: () => _selectDate(context),
+          child: TextFormField(
+            controller: _birthdayController,
+            style: _inputTextStyle(),
+            enabled: false,
+            decoration: _birthdayInputDecoration('Birthday',
+                backgroundColor: Color(0xFFF7ECE1)),
+          ),
+        ),
       ),
     );
   }
@@ -216,7 +272,8 @@ class _SignupPageState extends State<SignupPage> {
       textStyle: const TextStyle(
         color: Colors.black,
         fontSize: 18,
-        fontWeight: FontWeight.bold,
+        fontWeight:
+            FontWeight.w600, // Change to FontWeight.normal or adjust as needed
       ),
     );
   }
@@ -249,6 +306,21 @@ class _SignupPageState extends State<SignupPage> {
       floatingLabelBehavior: FloatingLabelBehavior.never,
       fillColor: backgroundColor,
       filled: true,
+    );
+  }
+
+  InputDecoration _birthdayInputDecoration(String labelText,
+      {Widget? suffixIcon, Color? backgroundColor}) {
+    return _inputDecoration(labelText,
+            suffixIcon: suffixIcon, backgroundColor: backgroundColor)
+        .copyWith(
+      contentPadding: EdgeInsets.fromLTRB(
+        12.0,
+        0.0, // Set the top padding to 0.0 to vertically center the text
+        12.0,
+        18.0,
+      ),
+      isDense: true, // This will reduce the height of the TextFormField
     );
   }
 
@@ -289,7 +361,6 @@ class _SignupPageState extends State<SignupPage> {
         lastName.isEmpty ||
         address.isEmpty ||
         birthday.isEmpty) {
-      print('All fields are required');
       _showErrorMessage(
           'All fields are required. Please fill in all the fields.');
       return;
@@ -312,24 +383,17 @@ class _SignupPageState extends State<SignupPage> {
       );
 
       if (response.statusCode == 201) {
-        // Signup successful
-        // Navigate to the home screen
         Navigator.push(
           context,
-          MaterialPageRoute(
-              builder: (context) =>
-                  LoginPage()), // Replace with your actual login page class
+          MaterialPageRoute(builder: (context) => LoginPage()),
         );
       } else if (response.statusCode == 400) {
-        print('Signup failed: Username already exists');
         _showErrorMessage(
             'Username already exists. Please enter another username.');
       } else {
-        print('Signup failed');
         _showErrorMessage('Signup failed. Please try again later.');
       }
     } catch (error) {
-      print('Error: $error');
       _showErrorMessage(
           'An error occurred. Please check your network connection and try again.');
     }
